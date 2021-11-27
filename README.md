@@ -1,20 +1,30 @@
 # Darboux Parser
+
 Created for CS61A A+ Program
-[Link to YouTube](www.youtube.com)
+
+[Link to YouTube](https://www.youtube.com)
 
 ### Idea
-A simple BNF parser that is created by higher order functions.
-A bit of look back capability for Regex.
+Darboux Parser is a simple BNF parser that is powered by higher order functions and recursions.
+The inspiration for it comes from the following question which I was exploring: Given a BNF form, would it be faster to match the strings first, followed by the other variable quantities? To me, the strings are like the fixed points in the partition, and fixing them first, then trying to match the others seem to offer a slight speed up. In some way, this also resembles the "Look Back" capability of Regex.
+
+To combine concepts from CS61A, I implemented the Darboux Parser as an object (uncreatively named ```DarbouxParser```) and maintained a dictionary of higher-order functions. Each of the functions are paired with a list of lists (which contains strings and other HOFs), and returns ```True``` if the input string matches any of the sequences corresponding to the lists and ```False``` otherwise. 
 
 ### Algorithms
 Darboux Parser features two main algorithms:
-1. ```matcher```
-2. ```interval_matcher```
+1. ```matcher(s, st)```
+This is probably the normal way which anyone would implement a matching algorithm. If the first element of ```st``` is a string, then I just check if ```s``` starts with it, and try to match the rest. Otherwise, I try all possible partitioning of ```s```.
 
-### Extension
-Interval matching - matching of strings first
-Do a comparison of the run time on the ( correct ) correct
-Read from files?
+2. ```matcher_fast```
+This is the interesting one: I tried to match.
+
+### Observations and Results
+Actually doesn't really offer a significant speed up.
+
+Show results from test cases.
+
+### Limitations
+Because the Darboux Parser is created to study of possible speedup by interval partitioning the string and matching the fixed points first, it lacks several BNF parser features like quantifiers (+, ?, *) etc.
 
 ### Running and Testing
 ```bash

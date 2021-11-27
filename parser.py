@@ -8,12 +8,10 @@ class DarbouxParser:
     def __init__(self):
         # a dictionary that maps key to list
         self.hof_dict = dict()
-        self.hof_dict_fast = dict()
     
     # Takes in a string and see if it matches
     def match(self, hof_key, string, fast=False):
-        if fast: return self.hof_dict_fast[hof_key](string)
-        return self.hof_dict[hof_key](string)
+        return self.hof_dict[hof_key](string, fast)
     
     # Takes in a list and construct the hof function
     def construct(self, hof_key, lst):
@@ -21,11 +19,8 @@ class DarbouxParser:
             for s in ll:
                 if len(s) > 0 and s[0] == '"': continue
                 if s not in self.hof_dict:
-                    self.hof_dict[s] = lambda x: False
-                    self.hof_dict_fast[s] = lambda x: False
-        self.hof_dict[hof_key] = lambda x: any([self.matcher(x, l) for l in lst])
-        self.hof_dict_fast[hof_key] = lambda x: any([self.matcher_fast(x, l) for l in lst])
-        print(lst)
+                    self.hof_dict[s] = lambda x, t: False
+        self.hof_dict[hof_key] = lambda x, t: any([self.matcher_fast(x, l) for l in lst]) if t else any([self.matcher(x, l) for l in lst])
 
     # match string with list
     def matcher(self, s, st):
@@ -35,7 +30,7 @@ class DarbouxParser:
             mid = st[0][1:-1]
             if not s.startswith(mid): return False
             return self.matcher(s[len(mid):], st[1:])
-        return any([(self.hof_dict[st[0]](s[:i]) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
+        return any([(self.hof_dict[st[0]](s[:i], False) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
     
     # fast match
     def matcher_fast(self, s, st):
@@ -55,8 +50,6 @@ class DarbouxParser:
         mid = st[mark][1:-1]
         occur = [m.start() for m in re.finditer(mid, s)]
         return any([(self.matcher(s[:x], st[:mark]) and self.matcher_fast(s[x + len(mid):], st[mark+1:])) for x in occur])
-
-
 
 
 def format_line(line):
