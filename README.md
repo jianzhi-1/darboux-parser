@@ -15,8 +15,8 @@ Darboux Parser features two main algorithms:
 1. ```matcher(s, st)```
 This is probably the normal way which anyone would implement a matching algorithm. If the first element of ```st``` is a string, then I just check if ```s``` starts with it, and try to match the rest. Otherwise, I try all possible partitioning of ```s```.
 
-2. ```matcher_fast```
-This is the interesting one: I tried to match.
+2. ```matcher_fast(s, st)```
+This is the interesting one: I try to match the first string appearing in ```st``` first. This is done with Python's regex library to enumerate all start indices of the string. Then, I try to match the previous interval and the next interval.
 
 ### Observations and Results
 Actually doesn't really offer a significant speed up.
