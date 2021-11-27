@@ -1,85 +1,63 @@
-from os import sendfile
-import re
 import sys
-
-### BNF
-### Maybe can convert to tree form? or higher order function form?
-
-### extra: add in regular expression
-### visualize out the tree (figure out the cs61a function)
-
-### stack can consist of characters, functions (every symbol is a function)
-
-test = 'correct: "" | "(" correct ")" correct'
-# stack ['"("', 'correct', '")"', 'correct']
-# stack ['"("', hof, '")"', hof]
-
-
-#### REMEMBER TO REMOVE THE QUOTATION MARKS!!!
+import re
+import time
 
 # DarbouxParser class
 class DarbouxParser:
 
     def __init__(self):
-        # maps name to dict
+        # a dictionary that maps key to list
         self.hof_dict = dict()
+        self.hof_dict_fast = dict()
     
     # Takes in a string and see if it matches
-    def match(self, hof_key, string):
-        print("matching string: {}".format(string))
-        print(self.hof_dict.keys())
-        print(self.hof_dict[hof_key])
+    def match(self, hof_key, string, fast=False):
+        if fast: return self.hof_dict_fast[hof_key](string)
         return self.hof_dict[hof_key](string)
     
     # Takes in a list and construct the hof function
     def construct(self, hof_key, lst):
-        print("constructing {} : {}".format(hof_key, lst))
-        for i in range(len(lst)):
-            for j in range(len(lst[i])):
-                if len(lst[i][j]) > 0 and lst[i][j][0] == '"':
-                    continue
-                if lst[i][j] not in self.hof_dict:
-                    self.hof_dict[lst[i][j]] = lambda x: False
+        for ll in lst:
+            for s in ll:
+                if len(s) > 0 and s[0] == '"': continue
+                if s not in self.hof_dict:
+                    self.hof_dict[s] = lambda x: False
+                    self.hof_dict_fast[s] = lambda x: False
         self.hof_dict[hof_key] = lambda x: any([self.matcher(x, l) for l in lst])
+        self.hof_dict_fast[hof_key] = lambda x: any([self.matcher_fast(x, l) for l in lst])
         print(lst)
 
-    # match string with stack
+    # match string with list
     def matcher(self, s, st):
-        print("MATCHING ", s, " AND ", st)
-        if len(st) == 0 and s == '':
-            print("matching ", s, st, "result here : True")
-            return True
-        if len(st) == 0:
-            print("matching ", s, st, "result there: False")
-            return False
-        
+        if len(st) == 0 and s == '': return True
+        if len(st) == 0: return False
         if (st[0][0] == '"'):
             mid = st[0][1:-1]
-            if not s.startswith(mid):
-                print("matching ", s, st, "result everywhere: False")
-                return False
+            if not s.startswith(mid): return False
             return self.matcher(s[len(mid):], st[1:])
-        else:
-            print("OVER HERE ", st[0])
-            return any([(self.hof_dict[st[0]](s[:i]) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
+        return any([(self.hof_dict[st[0]](s[:i]) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
+    
+    # fast match
+    def matcher_fast(self, s, st):
+        if len(st) == 0 and s == '': return True
+        if len(st) == 0: return False
+        if (st[0][0] == '"'):
+            mid = st[0][1:-1]
+            if not s.startswith(mid): return False
+            return self.matcher_fast(s[len(mid):], st[1:])
+        mark = -1
+        for i in range(len(st)):
+            if (st[i][0] == '"'):
+                mark = i
+                break
+        if mark == -1: return self.matcher(s, st)
 
-def split(string):
-    # split string based on symbols, chars
-    return []
+        mid = st[mark][1:-1]
+        occur = [m.start() for m in re.finditer(mid, s)]
+        return any([(self.matcher(s[:x], st[:mark]) and self.matcher_fast(s[x + len(mid):], st[mark+1:])) for x in occur])
 
-def match(string, stack):
-    # see if string matches stack
-    # returns true if does, false if no
-    if string == "" and stack.isEmpty():
-        return True
-    elif string == "":
-        return False
-    return True
 
-def test():
-    # ((())) symmetric
-    # ()()((())) balanced
-    return True
+
 
 def format_line(line):
     line = line.strip()
@@ -108,18 +86,6 @@ def format_line(line):
         lst_lst.append(lst)
     print(lst_lst)
     return k, lst_lst
-    lst = []
-    prev = 0
-    quote = 0
-    for i in range(len(line)):
-        if line[i] == " " and quote % 2 == 0:
-            lst.append(line[prev:i])
-            prev = i + 1
-            quote = 0
-        elif line[i] == '"':
-            quote += 1
-    lst.append(line[prev:])
-    return lst[0][:-1], lst[1:]
 
 def main():
     # handles input
@@ -133,9 +99,21 @@ def main():
             print(line.strip())
             (k, lst) = format_line(line)
             dp.construct(k, lst)
-    
-    print(dp.match("start", sys.argv[2]))
-
+    print(dp.match("start", sys.argv[2], True))
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+### BNF
+### Maybe can convert to tree form? or higher order function form?
+
+### extra: add in regular expression
+### visualize out the tree (figure out the cs61a function)
+
+### stack can consist of characters, functions (every symbol is a function)
+
+### SPEECH
+### I see the strings as the fixed points in the sequences. so no matter what, 
+# # the sequence must match the string at some point
