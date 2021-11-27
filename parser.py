@@ -26,7 +26,7 @@ class DarbouxParser:
     def matcher(self, s, st):
         if len(st) == 0 and s == '': return True
         if len(st) == 0: return False
-        if (st[0][0] == '"'):
+        if st[0][0] == '"':
             mid = st[0][1:-1]
             if not s.startswith(mid): return False
             return self.matcher(s[len(mid):], st[1:])
@@ -36,22 +36,23 @@ class DarbouxParser:
     def matcher_fast(self, s, st):
         if len(st) == 0 and s == '': return True
         if len(st) == 0: return False
-        if (st[0][0] == '"'):
+        if st[0][0] == '"':
             mid = st[0][1:-1]
             if not s.startswith(mid): return False
             return self.matcher_fast(s[len(mid):], st[1:])
+        
         mark = -1
         for i in range(len(st)):
-            if (st[i][0] == '"'):
+            if st[i][0] == '"':
                 mark = i
                 break
         if mark == -1: return self.matcher(s, st)
 
         mid = st[mark][1:-1]
-        occur = [m.start() for m in re.finditer(mid, s)]
-        return any([(self.matcher(s[:x], st[:mark]) and self.matcher_fast(s[x + len(mid):], st[mark+1:])) for x in occur])
+        occurrence = [m.start() for m in re.finditer(mid, s)]
+        return any([(self.matcher(s[:x], st[:mark]) and self.matcher_fast(s[x + len(mid):], st[mark+1:])) for x in occurrence])
 
-
+# returns (key_name, list of possible sequences split by "|")
 def format_line(line):
     line = line.strip()
     counter = 0
@@ -61,9 +62,8 @@ def format_line(line):
             break
     k = line[:counter]
     line = line[counter + 1:]
-    line_lst = line.split("|")
     lst_lst = []
-    for l in line_lst:
+    for l in line.split("|"):
         l = l.strip()
         lst = []
         prev = 0
@@ -77,11 +77,10 @@ def format_line(line):
                 quote += 1
         lst.append(l[prev:])
         lst_lst.append(lst)
-    print(lst_lst)
     return k, lst_lst
 
 def main():
-    # handles input
+
     print(sys.argv)
 
     dp = DarbouxParser()
@@ -98,15 +97,3 @@ if __name__ == "__main__":
     start_time = time.time()
     main()
     print("--- %s seconds ---" % (time.time() - start_time))
-
-### BNF
-### Maybe can convert to tree form? or higher order function form?
-
-### extra: add in regular expression
-### visualize out the tree (figure out the cs61a function)
-
-### stack can consist of characters, functions (every symbol is a function)
-
-### SPEECH
-### I see the strings as the fixed points in the sequences. so no matter what, 
-# # the sequence must match the string at some point

@@ -5,8 +5,11 @@ Created for CS61A A+ Program
 [Link to YouTube](https://www.youtube.com)
 
 ### Idea
+
+> Given a BNF form, would it be faster to match the strings first, followed by the other variable quantities?
+
 Darboux Parser is a simple BNF parser that is powered by higher order functions and recursions.
-The inspiration for it comes from the following question which I was exploring: Given a BNF form, would it be faster to match the strings first, followed by the other variable quantities? To me, the strings are like the fixed points in the partition, and fixing them first, then trying to match the others seem to offer a slight speed up. In some way, this also resembles the "Look Back" capability of Regex.
+The inspiration for it comes from the above question which I was exploring. For a BNF parser, it seems to me that the strings are equivalent to *fixed points* in the partition (i.e. any string that we are parsing must match those strings at some point in time). The idea of fixing them first, then trying to match the others seem to offer a slight speed up. In some way, this also resembles the "look back" capability of regex.
 
 To combine concepts from CS61A, I implemented the Darboux Parser as an object (uncreatively named ```DarbouxParser```) and maintained a dictionary of higher-order functions. Each of the functions are paired with a list of lists (which contains strings and other HOFs), and returns ```True``` if the input string matches any of the sequences corresponding to the lists and ```False``` otherwise. 
 
