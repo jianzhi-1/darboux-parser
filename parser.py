@@ -1,3 +1,4 @@
+from os import sendfile
 import re
 import sys
 
@@ -15,24 +16,6 @@ test = 'correct: "" | "(" correct ")" correct'
 
 
 #### REMEMBER TO REMOVE THE QUOTATION MARKS!!!
-
-# match string with stack
-def matcher(s, st):
-    
-    if len(st) == 0 and s == "":
-        print("matching ", s, st, "result: True")
-        return True
-    if len(st) == 0:
-        print("matching ", s, st, "result: False")
-        return False
-    if type(st[0]) is str:
-        if not s.startswith(st[0]):
-            print("matching ", s, st, "result: False")
-            return False
-        print("matching ", s, st, "result: ", matcher(s[len(st[0]):], st[1:]))
-        return matcher(s[len(st[0]):], st[1:])
-    print("matching ", s, st, "result: ", any([(st[0](s[:i]) and matcher(s[i:], st[1:])) for i in range(len(s))]))
-    return any([(st[0](s[:i]) and matcher(s[i:], st[1:])) for i in range(len(s))])
 
 # DarbouxParser class
 class DarbouxParser:
@@ -56,12 +39,29 @@ class DarbouxParser:
                 if len(lst[i][j]) > 0 and lst[i][j][0] == '"':
                     continue
                 if lst[i][j] not in self.hof_dict:
-                    print(lst[i][j], " is defined")
                     self.hof_dict[lst[i][j]] = lambda x: False
-                else:
-                    lst[i][j] = self.hof_dict[lst[i][j]]
-        self.hof_dict[hof_key] = lambda x: any([matcher(x, l) for l in lst])
+        self.hof_dict[hof_key] = lambda x: any([self.matcher(x, l) for l in lst])
         print(lst)
+
+    # match string with stack
+    def matcher(self, s, st):
+        print("MATCHING ", s, " AND ", st)
+        if len(st) == 0 and s == '':
+            print("matching ", s, st, "result here : True")
+            return True
+        if len(st) == 0:
+            print("matching ", s, st, "result there: False")
+            return False
+        
+        if (st[0][0] == '"'):
+            mid = st[0][1:-1]
+            if not s.startswith(mid):
+                print("matching ", s, st, "result everywhere: False")
+                return False
+            return self.matcher(s[len(mid):], st[1:])
+        else:
+            print("OVER HERE ", st[0])
+            return any([(self.hof_dict[st[0]](s[:i]) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
 
 def split(string):
     # split string based on symbols, chars
