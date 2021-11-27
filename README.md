@@ -17,12 +17,12 @@ Do a comparison of the run time on the ( correct ) correct
 Read from files?
 
 ### Running and Testing
-```console
+```bash
 $ python3 parser.py
 ```
 
 Some tests have been provided. **WARNING**: running the large test cases may take ~17 seconds.
-```console
+```bash
 $ sh test_small.sh
 $ sh test_large.sh
 ```
