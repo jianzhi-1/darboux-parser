@@ -9,21 +9,29 @@ import sys
 
 ### stack can consist of characters, functions (every symbol is a function)
 
-test = '"(" correct ")" correct'
+test = 'correct: "" | "(" correct ")" correct'
 # stack ['"("', 'correct', '")"', 'correct']
 # stack ['"("', hof, '")"', hof]
 
 
+#### REMEMBER TO REMOVE THE QUOTATION MARKS!!!
+
 # match string with stack
 def matcher(s, st):
+    
     if len(st) == 0 and s == "":
+        print("matching ", s, st, "result: True")
         return True
     if len(st) == 0:
+        print("matching ", s, st, "result: False")
         return False
     if type(st[0]) is str:
         if not s.startswith(st[0]):
+            print("matching ", s, st, "result: False")
             return False
+        print("matching ", s, st, "result: ", matcher(s[len(st[0]):], st[1:]))
         return matcher(s[len(st[0]):], st[1:])
+    print("matching ", s, st, "result: ", any([(st[0](s[:i]) and matcher(s[i:], st[1:])) for i in range(len(s))]))
     return any([(st[0](s[:i]) and matcher(s[i:], st[1:])) for i in range(len(s))])
 
 # DarbouxParser class
@@ -37,19 +45,22 @@ class DarbouxParser:
     def match(self, hof_key, string):
         print("matching string: {}".format(string))
         print(self.hof_dict.keys())
+        print(self.hof_dict[hof_key])
         return self.hof_dict[hof_key](string)
     
     # Takes in a list and construct the hof function
     def construct(self, hof_key, lst):
         print("constructing {} : {}".format(hof_key, lst))
         for i in range(len(lst)):
-            if len(lst[i]) > 0 and lst[i][0] == '"':
-                continue
-            if lst[i] not in self.hof_dict:
-                self.hof_dict[lst[i]] = lambda x: False
-            else:
-                lst[i] = self.hof_dict[lst[i]]
-        self.hof_dict[hof_key] = lambda x: matcher(x, lst)
+            for j in range(len(lst[i])):
+                if len(lst[i][j]) > 0 and lst[i][j][0] == '"':
+                    continue
+                if lst[i][j] not in self.hof_dict:
+                    print(lst[i][j], " is defined")
+                    self.hof_dict[lst[i][j]] = lambda x: False
+                else:
+                    lst[i][j] = self.hof_dict[lst[i][j]]
+        self.hof_dict[hof_key] = lambda x: any([matcher(x, l) for l in lst])
         print(lst)
 
 def split(string):
@@ -72,6 +83,31 @@ def test():
 
 def format_line(line):
     line = line.strip()
+    counter = 0
+    for i in range(len(line)):
+        if line[i] == ":":
+            counter = i
+            break
+    k = line[:counter]
+    line = line[counter + 1:]
+    line_lst = line.split("|")
+    lst_lst = []
+    for l in line_lst:
+        l = l.strip()
+        lst = []
+        prev = 0
+        quote = 0
+        for i in range(len(l)):
+            if l[i] == " " and quote % 2 == 0:
+                lst.append(l[prev:i])
+                prev = i + 1
+                quote = 0
+            elif l[i] == '"':
+                quote += 1
+        lst.append(l[prev:])
+        lst_lst.append(lst)
+    print(lst_lst)
+    return k, lst_lst
     lst = []
     prev = 0
     quote = 0
