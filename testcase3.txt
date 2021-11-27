@@ -1,0 +1,4 @@
+start: tree_node
+tree_node: "" | "Tree(" label branches ")"
+label: "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+branches: "" | ",[" tree_node "," tree_node "]"

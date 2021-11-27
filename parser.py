@@ -99,7 +99,7 @@ def main():
             print(line.strip())
             (k, lst) = format_line(line)
             dp.construct(k, lst)
-    print(dp.match("start", sys.argv[2], True))
+    print(dp.match("start", sys.argv[2]))
 
 if __name__ == "__main__":
     start_time = time.time()

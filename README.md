@@ -4,6 +4,7 @@ Created for CS61A A+ Program
 
 ### Idea
 A simple BNF parser that is created by higher order functions.
+A bit of look back capability for Regex.
 
 ### Algorithms
 Darboux Parser features two main algorithms:
@@ -15,9 +16,15 @@ Interval matching - matching of strings first
 Do a comparison of the run time on the ( correct ) correct
 Read from files?
 
-### Set Up
+### Running and Testing
 ```shell
 $ python3 parser.py
+```
+
+Some tests have been provided. **WARNING**: running the large test cases may take ~17 seconds.
+```shell
+$ sh test_small.sh
+$ sh test_large.sh
 ```
 
 ### Remarks
