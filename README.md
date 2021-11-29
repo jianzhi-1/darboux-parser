@@ -26,9 +26,7 @@ This is probably the normal way which anyone would implement a matching algorith
 This is the interesting one: I try to match the first string appearing in ```st``` first. This is done with Python's regex library to enumerate all start indices of the string. Then, I try to match the previous interval and the next interval.
 
 ### Observations and Results
-Actually doesn't really offer a significant speed up.
-
-Show results from test cases.
+```matcher_fast``` shows a consistent but negligible speed up over the original ```matcher``` for the test cases.
 
 ### Limitations
 Because the Darboux Parser is created to study of possible speedup by interval partitioning the string and matching the fixed points first, it lacks several BNF parser features like quantifiers (+, ?, *) etc.
