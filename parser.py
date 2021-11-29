@@ -22,35 +22,35 @@ class DarbouxParser:
                     self.hof_dict[s] = lambda x, t: False
         self.hof_dict[hof_key] = lambda x, t: any([self.matcher_fast(x, l) for l in lst]) if t else any([self.matcher(x, l) for l in lst])
 
-    # match string with list
-    def matcher(self, s, st):
-        if len(st) == 0 and s == '': return True
-        if len(st) == 0: return False
-        if st[0][0] == '"':
-            mid = st[0][1:-1]
+    # algorithm 1: match string with list
+    def matcher(self, s, lst):
+        if len(lst) == 0 and s == '': return True
+        if len(lst) == 0: return False
+        if lst[0][0] == '"':
+            mid = lst[0][1:-1]
             if not s.startswith(mid): return False
-            return self.matcher(s[len(mid):], st[1:])
-        return any([(self.hof_dict[st[0]](s[:i], False) and self.matcher(s[i:], st[1:])) for i in range(len(s) + 1)])
+            return self.matcher(s[len(mid):], lst[1:])
+        return any([(self.hof_dict[lst[0]](s[:i], False) and self.matcher(s[i:], lst[1:])) for i in range(len(s) + 1)])
     
-    # fast match
-    def matcher_fast(self, s, st):
-        if len(st) == 0 and s == '': return True
-        if len(st) == 0: return False
-        if st[0][0] == '"':
-            mid = st[0][1:-1]
+    # algorithm 2: fast match
+    def matcher_fast(self, s, lst):
+        if len(lst) == 0 and s == '': return True
+        if len(lst) == 0: return False
+        if lst[0][0] == '"':
+            mid = lst[0][1:-1]
             if not s.startswith(mid): return False
-            return self.matcher_fast(s[len(mid):], st[1:])
+            return self.matcher_fast(s[len(mid):], lst[1:])
         
         mark = -1
-        for i in range(len(st)):
-            if st[i][0] == '"':
+        for i in range(len(lst)):
+            if lst[i][0] == '"':
                 mark = i
                 break
-        if mark == -1: return self.matcher(s, st)
+        if mark == -1: return self.matcher(s, lst)
 
-        mid = st[mark][1:-1]
+        mid = lst[mark][1:-1]
         occurrence = [m.start() for m in re.finditer(mid, s)]
-        return any([(self.matcher_fast(s[x + len(mid):], st[mark+1:]) and self.matcher(s[:x], st[:mark])) for x in occurrence])
+        return any([(self.matcher_fast(s[x + len(mid):], lst[mark+1:]) and self.matcher(s[:x], lst[:mark])) for x in occurrence])
 
 # returns (key_name, list of possible sequences split by "|")
 def format_line(line):
