@@ -50,19 +50,22 @@ class DarbouxParser:
 
         mid = st[mark][1:-1]
         occurrence = [m.start() for m in re.finditer(mid, s)]
-        return any([(self.matcher(s[:x], st[:mark]) and self.matcher_fast(s[x + len(mid):], st[mark+1:])) for x in occurrence])
+        return any([(self.matcher_fast(s[x + len(mid):], st[mark+1:]) and self.matcher(s[:x], st[:mark])) for x in occurrence])
 
 # returns (key_name, list of possible sequences split by "|")
 def format_line(line):
     line = line.strip()
     counter = 0
+
     for i in range(len(line)):
         if line[i] == ":":
             counter = i
             break
+    
     k = line[:counter]
     line = line[counter + 1:]
     lst_lst = []
+
     for l in line.split("|"):
         l = l.strip()
         lst = []
@@ -77,23 +80,28 @@ def format_line(line):
                 quote += 1
         lst.append(l[prev:])
         lst_lst.append(lst)
+    
     return k, lst_lst
 
-def main():
-
-    print(sys.argv)
+def main(fast=False):
 
     dp = DarbouxParser()
 
     with open(sys.argv[1]) as f:
         lines = f.readlines()
         for line in lines:
-            print(line.strip())
             (k, lst) = format_line(line)
             dp.construct(k, lst)
-    print(dp.match("start", sys.argv[2]))
+    print("Match!" if dp.match("start", sys.argv[2], fast) else "No Match!")
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    normal_time = time.time()
+    main(True)
+    fast_time = time.time()
+
+    print("--- Status ---")
+    print("Normal: %s seconds" % (normal_time - start_time))
+    print("Fast: %s seconds" % (fast_time - normal_time))
+    print("Diff: %s seconds" % ((fast_time - normal_time) - (normal_time - start_time)))
